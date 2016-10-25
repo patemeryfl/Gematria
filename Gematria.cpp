@@ -1,7 +1,6 @@
-#include <string.h>
 #include <iostream>
+#include <fstream>
 #include <vector>
-
 
 using namespace std;
 
@@ -20,9 +19,9 @@ int vowel_count(string word) {
     {
         if(word[i]=='a' || word[i]=='e' || word[i]=='i' || word[i]=='o' || word[i]=='u' || word[i] == 'y' ||
            word[i]=='A' || word[i]=='E' || word[i]=='I' || word[i]=='O' || word[i]=='U' || word[i] == 'Y')
-            ++vowel;
+           ++vowel;
     }
-    return vowel;
+return vowel;
 }
 
 /**
@@ -48,25 +47,22 @@ int vowel_count(string word) {
  */
 int syllable_count(string word) {
 // TODO: insert your implementation
-    string char;
-    int syllable = 0;
+    int syllable_count = 0;
 
     for (int i=0; i < word.size()-1; i++) {
         string current;
         string next;
         current = word.substr(i, 1);
         next =  word.substr(i+1, 1);
-             if (vowel_count(current)) {
-                if (vowel_count(next)) {
-                    syllable++;
-                    i++;
-                }
-                else {
-                    syllable++;
-                }
-             }
+        if (vowel_count(current)) {
+           if (vowel_count(next)) {
+           syllable_count++;
+           i++; }
+           else {
+           syllable_count++; }
+       }
     }
-    return syllable;
+return syllable_count;
 }
 
 /**
@@ -80,16 +76,18 @@ int syllable_count(string word) {
  * @return a vector of all the words that have min <= length <= max,
  *         if none match, an empty vector is returned.
  */
-vector<string> filter_dict(string filename, int min, int max) const {
+
+vector<string> filter_dict(string filename, int min, int max) {
     // TODO: insert your implementation
+    fstream data(filename);
     vector<string> filter_dict;
-    istringstream data(filename);
+
     while(getline(data, filename)) {
-        if (strlen(filename) >= min && strlen(filename) <= max) {
-            filter_dict.append(filename);
+        if (sizeof(filename) >= min && sizeof(filename) <= max) {
+            filter_dict.push_back(filename);
         }
     }
-    return filter_dict;
+return filter_dict;
 }
 
 
@@ -105,14 +103,17 @@ public:
      * @param the_word the word to be stored (preserving its case).
      */
     // TODO: implement this
-    GematricString(string the_word);
-
+    GematricString(string the_word) :
+        word(the_word) {
+    }
     /**
      * Returns the word.
      * @return the word
      */
     // TODO: implement this
-    string get_word(string str) const;
+    string get_word() const {
+        return word;
+    }
 
     /**
      * Returns the gematric value of the string.
@@ -130,33 +131,22 @@ public:
      *
      * @return the gematric value of the GematricString.
      */
-    // TODO: implement this
-    int gematric_value( string str) const;
+    // TODO: implement this: int gematric_value(string str) const;
+    int gematric_value() const{
+        int sum = 0;
+        string str;
+        for(int i; i < str.size(); i++){
+            if(str[i]<91 && str[i]> 64){
+                sum += (str[i]-64);
+            }
+            else if(str[i]<123 && str[i]> 96){
+                sum += (str[i]-96);
+            }
+        }
+        return sum;
+    }
 };
 
-// TODO: implement this: GematricString(string the_word);
-GematricString::GematricString(string the_word) {
-    cout << the_word;
-}
-
-// TODO: implement this: string get_word(string str) const;
-GematricString::get_word(string str) const {
-    return str;
-}
-// TODO: implement this: int gematric_value(string str) const;
-GematricString::gematric_value(string str) const {
-    int sum = 0;
-
-    for(int i; i<strlen(str); i++){       //For loop for word length
-        if(str[i]<91 && str[i]> 64){      //
-            sum+= (str[i]-64);
-        }
-        else if(str[i]<123 && str[i]> 96){
-        sum+= (str[i]-96);
-        }
-    }
-return sum;
-}
 /**
  * Loads each word in the file into a GematricString object
  * putting each object into a vector and returning that.
@@ -164,19 +154,19 @@ return sum;
  * @param filename the name of the file containing 1 word per line.
  * @return a vector of GematricStrings 1 for each word in the given file.
  */
-vector<GematricString> load_words(string filename) {
-// TODO: insert your implementation
-vector<GematricString> GSVector1;
-    string filename;
-    ifstream infile (filename);
-    string str;
 
-        while(getline(infile, str)) {
-        GematricString obj;
-        obj.GematricString(str);
-        GSVector1.append(obj);
+// TODO: insert your implementation
+vector<GematricString> load_words(string filename) {
+    vector<GematricString> GSLoad;
+    fstream data(filename);
+    if (data.is_open()) {
+        string line;
+        while (getline(data, line)) {
+            GematricString *pgs = new GematricString(line);
+            GSLoad.push_back(*pgs);
         }
-    return GSVector1;
+    }
+    return GSLoad;
 }
 
 /**
@@ -190,29 +180,47 @@ vector<GematricString> GSVector1;
  *         as the given word, if none match an empty vector is returned.
  */
 vector<string> gematria(string word_to_match, vector<GematricString> gem_words) {
-// TODO: insert your implementation
-    vector<string> GSVector;
+    vector<string> GSList;
+    GematricString wordToMatch(word_to_match);
 
-    for(it=gem_words.begin(); it < gem_words.end(); it++){
-        if(gematric_value(word_to_match) == (*it)){
-        GSVector.append((*it));
+    int gem_value = wordToMatch.gematric_value();
+    for (GematricString gs : gem_words) {
+        if (gem_value == gs.gematric_value()) {
+            GSList.push_back(gs.get_word());
         }
     }
-return GSVector;
+    return GSList;
 }
 
-int main(const GematricString& gematric_value) {
+int main() {
 
-    string file;
-    cout << "Please enter the file you would like to analyze:";
-    cin >> file;
-    ifstream infile {filename};
+    //Mock Input for file input
+    string filename;
+    fstream infile {filename};
 
-    vowel_count(file);
-    syllable_count(file);
-    gematric_value(word_to_match);
-    filter_dict(filename, min, max);
+    //Vowel Test
+    cout << "There are " << vowel_count("Data Structures") << " vowels in the string 'Data Structures'" << endl;
+    //Syllable Test
+    cout << "There are " << syllable_count("Data Structures") << " syllables in the words 'Data Structures'" << endl;
+    //Gematric Value Test
+    GematricString test("Structures");
+    cout << "The gematric value of the word Structures is " << test.gematric_value() << endl;
 
-    return 0;
+    const vector<GematricString>
+    &testVector = load_words(filename);
+    for (int i=0; i < testVector.size(); i++) {
+        cout << testVector[i].get_word() << endl;
+    }
 
+    const vector<string>
+    &GVector = gematria("Data Structures", mockVector);
+    int counter = 0;
+    for (int i = 0; i < GVector.size(); i++) {
+        cout << GVector[i] << endl;
+        if (counter == 20) {
+            break;
+        }
+        counter++;
+    }
+return 0;
 }
